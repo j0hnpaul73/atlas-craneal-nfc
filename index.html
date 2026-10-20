@@ -1,170 +1,273 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<title>Atlas craneal interactivo</title>
-<style>
-:root{color-scheme:dark;--bg:#000;--panel:#111;--line:#303030;--text:#f4f4f4;--muted:#aaa;--accent:#7edbd0}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-header{height:44px;padding:0 12px;background:#090909;border-bottom:1px solid #282828;display:flex;align-items:center;justify-content:space-between;gap:10px}h1{font-size:15px;font-weight:500;margin:0;letter-spacing:.02em}header p{display:none}
-main{height:calc(100dvh - 44px);max-width:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:0;background:#000}
-.panel{background:#090909;border:0;border-left:1px solid #292929;border-radius:0;overflow:hidden;min-width:0}.panel-head{padding:8px 10px;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;gap:8px}h2,h3{margin:0;font-size:13px;font-weight:500}.actions{display:flex;gap:5px;flex-wrap:wrap}button{font:inherit;font-size:11px;color:#eee;background:#1a1a1a;border:1px solid #414141;border-radius:2px;padding:6px 8px;cursor:pointer}button:hover,button:focus-visible{border-color:var(--accent);outline:none}#stage{height:100%;min-height:300px;position:relative;background:#000;touch-action:none}#stage canvas{width:100%;height:100%;display:block;touch-action:none}.hint{position:absolute;bottom:10px;left:10px;right:10px;text-align:center;color:#aaa;font-size:11px;pointer-events:none;text-shadow:0 1px 3px #000}
-main>section.panel{display:flex;flex-direction:column;border:0;min-height:0}main>section.panel>.panel-head:first-child{order:0;background:#080808}#stage{order:1;flex:1;height:auto;min-height:0}main>section.panel>.panel-head:last-child{order:2;background:#080808;justify-content:center;padding:6px}
-.side{display:flex;flex-direction:column;gap:0;min-height:0}.details{padding:12px;border-bottom:1px solid #292929;flex:0 0 auto}.eyebrow{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}#boneTitle{font-size:17px;margin:0 0 4px}.latin{font-size:11px;color:#aaa;font-style:italic}#boneDesc{font-size:12px;line-height:1.45;color:#ddd;margin:9px 0 0}.side>section:last-child{display:flex;flex-direction:column;min-height:0;flex:1}.list-body{padding:8px;min-height:0;display:flex;flex-direction:column}.search{width:100%;background:#050505;border:1px solid #353535;border-radius:2px;padding:9px;color:#fff;font:inherit;font-size:12px;margin-bottom:8px}.list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}.bone-list{display:flex;flex-direction:column;gap:3px;overflow:auto;min-height:0;flex:1}.bone-row{display:flex;gap:4px}.bone-btn{display:flex;align-items:center;gap:8px;text-align:left;flex:1;min-width:0;border:1px solid transparent;background:transparent;padding:7px 5px}.bone-btn.active{border-color:#555;background:#222}.bone-btn span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.eye-btn{width:64px;flex-shrink:0}.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.count{font-size:10px;color:#aaa}footer{display:none}
-@media(max-width:700px){html,body{overflow:auto}header{height:40px}main{height:calc(100dvh - 40px);grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 40vh;overflow:auto}main>section.panel{min-height:55vh}#stage{height:auto;min-height:0}.side{min-height:0;border-top:1px solid #292929}.details{padding:10px}.bone-list{max-height:none}.panel-head{padding:7px 9px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas anatómico 3D</title>
+  <meta name="description" content="Atlas anatómico 3D interactivo">
+  <style>
+    :root { color-scheme: dark; --bg:#08090b; --panel:#121419; --panel2:#1a1d24; --line:#292d36; --text:#f2f4f8; --muted:#a8afbd; --accent:#7fc8ff; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    button { font:inherit; cursor:pointer; }
+    .app { display:grid; grid-template-columns:248px minmax(0,1fr); width:100%; height:100%; }
+    aside { background:var(--panel); border-right:1px solid var(--line); padding:18px 12px; overflow:auto; z-index:3; }
+    .brand { padding:0 9px 18px; border-bottom:1px solid var(--line); margin-bottom:15px; }
+    .brand h1 { font-size:18px; line-height:1.2; margin:0 0 6px; letter-spacing:.2px; }
+    .brand p { margin:0; color:var(--muted); font-size:12px; }
+    .section-label { color:var(--muted); text-transform:uppercase; letter-spacing:1.1px; font-size:10px; font-weight:700; padding:0 10px; margin:16px 0 8px; }
+    .model-list { display:grid; gap:5px; }
+    .model-btn { display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:1px solid transparent; border-radius:10px; padding:11px 10px; background:transparent; color:var(--text); }
+    .model-btn:hover { background:var(--panel2); }
+    .model-btn.active { background:#1c2935; border-color:#35546b; }
+    .model-icon { display:grid; place-items:center; width:32px; height:32px; border-radius:8px; background:#252a33; font-size:17px; flex-shrink:0; }
+    .model-name { font-size:13px; font-weight:650; }
+    .model-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+    .side-note { color:var(--muted); font-size:11px; line-height:1.45; margin:18px 9px 0; }
+    main { position:relative; min-width:0; min-height:0; }
+    #viewer { position:absolute; inset:0; }
+    .topbar { position:absolute; z-index:2; top:16px; left:16px; right:16px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; pointer-events:none; }
+    .title-card,.status-card,.info-card,.controls { pointer-events:auto; background:rgba(17,19,24,.88); border:1px solid rgba(255,255,255,.1); backdrop-filter:blur(12px); border-radius:12px; box-shadow:0 8px 28px #0004; }
+    .title-card { padding:12px 15px; }
+    .title-card h2 { margin:0; font-size:16px; }
+    .title-card p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+    .status-card { padding:9px 12px; font-size:12px; color:var(--muted); }
+    .bottom-left { position:absolute; z-index:2; bottom:16px; left:16px; display:flex; flex-wrap:wrap; gap:7px; }
+    .controls { display:flex; gap:6px; padding:6px; }
+    .control-btn { border:1px solid var(--line); background:#20232b; color:var(--text); border-radius:8px; padding:8px 10px; font-size:12px; }
+    .control-btn:hover { background:#2c323d; }
+    .info-card { position:absolute; z-index:2; right:16px; bottom:16px; width:min(270px,calc(100% - 32px)); padding:14px; }
+    .info-card .eyebrow { color:var(--accent); text-transform:uppercase; font-size:10px; letter-spacing:1px; font-weight:750; }
+    .info-card h3 { margin:6px 0; font-size:15px; }
+    .info-card p { color:var(--muted); font-size:12px; line-height:1.45; margin:0; }
+    .loading { position:absolute; inset:0; display:grid; place-items:center; z-index:1; color:var(--muted); text-align:center; padding:25px; pointer-events:none; }
+    .loading strong { color:var(--text); display:block; margin-bottom:6px; }
+    .mobile-menu { display:none; }
+    @media(max-width:720px) {
+      .app { grid-template-columns:1fr; }
+      aside { position:absolute; z-index:5; top:0; bottom:0; left:0; width:min(285px,86vw); transform:translateX(-102%); transition:transform .2s ease; box-shadow:12px 0 35px #0007; }
+      aside.open { transform:translateX(0); }
+      .mobile-menu { display:inline-block; }
+      .topbar { top:10px; left:10px; right:10px; }
+      .title-card { padding:10px 12px; }
+      .title-card h2 { font-size:14px; }
+      .title-card p { font-size:11px; }
+      .status-card { display:none; }
+      .bottom-left { left:10px; bottom:10px; }
+      .info-card { right:10px; bottom:66px; width:min(235px,calc(100% - 20px)); }
+      .control-btn { padding:8px; }
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
-<header>
-  <div><h1>CRÁNEO · VISOR 3D</h1><p>Gira, selecciona y oculta estructuras</p></div>
-</header>
-<main>
-  <section class="panel">
-    <div class="panel-head"><h2>VISOR</h2><div class="actions"><button id="reset">Centrar</button><button id="spin" aria-pressed="false">Auto giro: OFF</button></div></div>
-    <div id="stage"><div class="hint" id="hint">Arrastra para girar · Pellizca o usa la rueda para acercar</div></div>
-    
-  </section>
-  <aside class="side">
-    <section class="panel details" aria-live="polite">
-      <div class="eyebrow">Hueso seleccionado</div>
-      <h2 id="boneTitle">Frontal</h2><div class="latin" id="boneLatin">Os frontale</div>
-      <p id="boneDesc">Selecciona una estructura para consultar su descripción.</p>
-    </section>
-    <section class="panel">
-      <div class="panel-head"><h3>ESTRUCTURAS</h3><div class="actions"><span class="count" id="count">29 piezas</span><button id="showAll">Mostrar todos</button></div></div>
-      <div class="list-body"><input class="search" id="search" type="search" placeholder="Buscar hueso…" aria-label="Buscar estructura"><div class="bone-list" id="boneList"></div></div>
-    </section>
+<div class="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <h1>Atlas anatómico 3D</h1>
+      <p>Modelos anatómicos interactivos</p>
+    </div>
+    <div class="section-label">Modelos</div>
+    <nav class="model-list" id="modelList"></nav>
+    <p class="side-note">Arrastrá para girar el modelo, usá la rueda o dos dedos para acercarte y tocá una pieza para seleccionarla.</p>
   </aside>
-</main>
-<footer>Atlas craneal · Modelo educativo interactivo</footer>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
+  <main>
+    <div id="viewer"></div>
+    <div class="loading" id="loading"><div><strong>Cargando modelo 3D…</strong>Esperá unos segundos.</div></div>
+    <div class="topbar">
+      <div class="title-card">
+        <button class="control-btn mobile-menu" id="menuToggle" aria-label="Abrir menú">☰</button>
+        <h2 id="modelTitle">Cráneo óseo</h2>
+        <p id="modelSubtitle">Visor anatómico interactivo</p>
+      </div>
+      <div class="status-card" id="status">Preparando visor…</div>
+    </div>
+    <div class="bottom-left">
+      <div class="controls">
+        <button class="control-btn" id="resetBtn">Restablecer vista</button>
+        <button class="control-btn" id="hideBtn">Ocultar pieza</button>
+        <button class="control-btn" id="showAllBtn">Mostrar todo</button>
+      </div>
+    </div>
+    <section class="info-card">
+      <div class="eyebrow">Selección</div>
+      <h3 id="selectedName">Ninguna pieza seleccionada</h3>
+      <p id="selectedInfo">Tocá o hacé clic sobre una pieza del modelo para seleccionarla. La información anatómica detallada se puede ampliar más adelante.</p>
+    </section>
+  </main>
+</div>
 <script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const stage=document.querySelector('#stage');
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x000000);
-const camera=new THREE.PerspectiveCamera(38,stage.clientWidth/stage.clientHeight,0.01,1000);
-camera.position.set(0,0.2,4.4);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-stage.prepend(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;controls.dampingFactor=.07;controls.minDistance=1.5;controls.maxDistance=9;
-scene.add(new THREE.HemisphereLight(0xe4f1ff,0x5a4636,2.0));
-const key=new THREE.DirectionalLight(0xffffff,3.0);key.position.set(3,5,5);scene.add(key);
-const fill=new THREE.DirectionalLight(0x82b8ff,1.6);fill.position.set(-4,1,-3);scene.add(fill);
-const root=new THREE.Group();scene.add(root);
-const raycaster=new THREE.Raycaster();const pointer=new THREE.Vector2();
-let selectable=[],selected=null,modelReady=false,autoSpin=false;
-const colors={
-'Ethmoid Bone':{es:'Etmoides',la:'Os ethmoidale',d:'Participa en la pared medial de la órbita, la cavidad nasal y la base anterior del cráneo.'},
-'Frontal bone':{es:'Frontal',la:'Os frontale',d:'Forma la frente, parte de la base craneal anterior y el techo de las órbitas.'},
-'Mandible bone':{es:'Mandíbula',la:'Mandibula',d:'Forma la mandíbula inferior. Contiene los alvéolos dentarios inferiores y se articula con el temporal.'},
-'Occipital bone':{es:'Occipital',la:'Os occipitale',d:'Forma la región posterior e inferior del cráneo. Rodea el foramen magno.'},
-'Parietal bone.l':{es:'Parietal izquierdo',la:'Os parietale sinistrum',d:'Forma gran parte de la bóveda craneal superior y lateral.'},
-'Parietal bone.r':{es:'Parietal derecho',la:'Os parietale dextrum',d:'Forma gran parte de la bóveda craneal superior y lateral.'},
-'Sphenoid bone':{es:'Esfenoides',la:'Os sphenoidale',d:'Hueso central de la base del cráneo. Contribuye a las órbitas y contiene la silla turca.'},
-'Vomer':{es:'Vómer',la:'Vomer',d:'Forma la porción posteroinferior del tabique nasal óseo.'},
-'Inferior nasal concha bone.r':{es:'Cornete nasal inferior',la:'Concha nasalis inferior',d:'Proyecta hacia la cavidad nasal y ayuda a acondicionar el aire inspirado.'},
-'Lacrimal bone.r':{es:'Lagrimal',la:'Os lacrimale',d:'Pequeño hueso de la pared medial de la órbita, relacionado con el aparato lagrimal.'},
-'Lower canine.r':{es:'Canino inferior derecho',la:'Dens caninus mandibulae',d:'Diente de raíz larga que participa en el corte y desgarro de los alimentos.'},
-'Lower first molar tooth.r':{es:'Primer molar inferior derecho',la:'Dens molaris primus mandibulae',d:'Molar permanente que participa en la trituración de los alimentos.'},
-'Lower first premolar.r':{es:'Primer premolar inferior derecho',la:'Dens premolaris primus mandibulae',d:'Diente posterior al canino que participa en la trituración.'},
-'Lower lateral incisor.r':{es:'Incisivo lateral inferior derecho',la:'Dens incisivus lateralis mandibulae',d:'Diente anterior que participa en el corte de los alimentos.'},
-'Lower medial incisor.r':{es:'Incisivo central inferior derecho',la:'Dens incisivus medialis mandibulae',d:'Diente anterior próximo a la línea media.'},
-'Lower second molar tooth.r':{es:'Segundo molar inferior derecho',la:'Dens molaris secundus mandibulae',d:'Molar permanente situado distal al primer molar.'},
-'Lower second premolar.r':{es:'Segundo premolar inferior derecho',la:'Dens premolaris secundus mandibulae',d:'Diente situado entre el primer premolar y el primer molar.'},
-'Maxilla bone.r':{es:'Maxilar derecho',la:'Maxilla',d:'Forma parte de la mandíbula superior, el paladar duro, la cavidad nasal y el suelo orbitario.'},
-'Nasal bone.r':{es:'Nasal derecho',la:'Os nasale',d:'Contribuye al puente óseo de la nariz.'},
-'Palatine bone.r':{es:'Palatino derecho',la:'Os palatinum',d:'Participa en la porción posterior del paladar duro y en paredes de las cavidades nasal y orbitaria.'},
-'Temporal bone.r':{es:'Temporal derecho',la:'Os temporale',d:'Forma parte de la pared lateral y base del cráneo. Aloja estructuras del oído.'},
-'Upper canine.r':{es:'Canino superior derecho',la:'Dens caninus maxillae',d:'Diente de raíz larga que participa en el corte y desgarro de los alimentos.'},
-'Upper first molar tooth.r':{es:'Primer molar superior derecho',la:'Dens molaris primus maxillae',d:'Molar permanente que participa en la trituración de los alimentos.'},
-'Upper first premolar.r':{es:'Primer premolar superior derecho',la:'Dens premolaris primus maxillae',d:'Diente posterior al canino que participa en la trituración.'},
-'Upper lateral incisor.r':{es:'Incisivo lateral superior derecho',la:'Dens incisivus lateralis maxillae',d:'Diente anterior situado lateral al incisivo central.'},
-'Upper medial incisor.r':{es:'Incisivo central superior derecho',la:'Dens incisivus medialis maxillae',d:'Diente anterior próximo a la línea media.'},
-'Upper second molar tooth.r':{es:'Segundo molar superior derecho',la:'Dens molaris secundus maxillae',d:'Molar permanente situado distal al primer molar.'},
-'Upper second premolar.r':{es:'Segundo premolar superior derecho',la:'Dens premolaris secundus maxillae',d:'Diente situado entre el primer premolar y el primer molar.'},
-'Zygomatic bone.r':{es:'Cigomático derecho',la:'Os zygomaticum',d:'Forma el relieve del pómulo y parte de la pared lateral y suelo de la órbita.'}
-};
-function norm(s){return (s||'').replace(/\.\d+$/,'').replace(/_r$/,'').replace(/_l$/,'').trim();}
-function infoFor(name){let k=Object.keys(colors).find(k=>name===k||name.startsWith(k));return colors[k]||{es:norm(name).replace(/\.r$/,' derecho').replace(/\.l$/,' izquierdo'),la:'Estructura anatómica',d:'Selecciona esta pieza para identificarla en el modelo. Añade una descripción anatómica revisada antes de publicar el atlas.'};}
-function meshColor(mesh){const c=mesh.material?.color;return c?`#${c.getHexString()}`:'#66e0c2';}
-function selectMesh(mesh){
- if(!mesh)return;
- selected=mesh;
- document.querySelectorAll('.bone-btn').forEach(b=>b.classList.toggle('active',b.dataset.name===mesh.name));
- const info=infoFor(mesh.name);
- document.querySelector('#boneTitle').textContent=info.es;
- document.querySelector('#boneLatin').textContent=info.la;
- document.querySelector('#boneDesc').textContent=info.d;
- 
-}
-const loader=new GLTFLoader();
-const dracoLoader=new DRACOLoader();
-dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
-loader.setDRACOLoader(dracoLoader);
-loader.load('./assets/craneo-anatomico.glb',gltf=>{
- const model=gltf.scene;root.add(model);
- const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
- const maxDim=Math.max(size.x,size.y,size.z);
- const modelScale=2.3/maxDim;
- model.scale.setScalar(modelScale);
- // Apply the same scale to the centering offset; otherwise the model can be displaced off-screen.
- model.position.copy(center).multiplyScalar(-modelScale);
- model.traverse(o=>{if(o.isMesh){o.userData.originalMaterial=o.material;o.material=o.material.clone();o.material.side=THREE.DoubleSide;selectable.push(o);}});
- // A gentle tilt presents the skull at an oblique angle while keeping it rotatable.
- model.rotation.y=-.22;model.rotation.x=.04;
- buildList();modelReady=true;
- const first=selectable.find(m=>m.name==='Frontal bone')||selectable[0];selectMesh(first);
- document.querySelector('#hint').textContent='Modelo cargado · arrastra para girar · toca una estructura para seleccionarla';
-},undefined,err=>{
- console.error(err);document.querySelector('#hint').textContent='No se pudo cargar el modelo. Comprueba que assets/craneo-anatomico.glb esté junto a index.html.';
-});
-function buildList(filter=''){
- const list=document.querySelector('#boneList');list.innerHTML='';
- const items=selectable.filter(m=>{const i=infoFor(m.name);return (i.es+' '+i.la+' '+m.name).toLowerCase().includes(filter.toLowerCase())});
- items.sort((a,b)=>infoFor(a.name).es.localeCompare(infoFor(b.name),'es'));
- for(const mesh of items){
-  const info=infoFor(mesh.name),row=document.createElement('div');row.className='bone-row';
-  const btn=document.createElement('button');btn.className='bone-btn'+(mesh===selected?' active':'');btn.dataset.name=mesh.name;btn.title=info.es;
-  const dot=document.createElement('i');dot.className='dot';dot.style.background=meshColor(mesh);
-  const label=document.createElement('span');label.textContent=info.es;btn.append(dot,label);
-  btn.addEventListener('click',()=>{if(!mesh.visible)mesh.visible=true;selectMesh(mesh);buildList(document.querySelector('#search').value);});
-  const eye=document.createElement('button');eye.className='eye-btn';eye.title=mesh.visible?'Ocultar':'Mostrar';eye.textContent=mesh.visible?'Ocultar':'Mostrar';eye.setAttribute('aria-label',(mesh.visible?'Ocultar ':'Mostrar ')+info.es);
-  eye.addEventListener('click',()=>{mesh.visible=!mesh.visible;eye.textContent=mesh.visible?'Ocultar':'Mostrar';eye.title=mesh.visible?'Ocultar':'Mostrar';eye.setAttribute('aria-label',(mesh.visible?'Ocultar ':'Mostrar ')+info.es);});
-  row.append(btn,eye);list.append(row);
- }
- document.querySelector('#count').textContent=`${items.length} ${items.length===1?'pieza':'piezas'}`;
-}
-document.querySelector('#search').addEventListener('input',e=>buildList(e.target.value));
-renderer.domElement.addEventListener('pointerdown',e=>{renderer.domElement.dataset.x=e.clientX;renderer.domElement.dataset.y=e.clientY;});
-renderer.domElement.addEventListener('pointerup',e=>{
- const dx=e.clientX-Number(renderer.domElement.dataset.x),dy=e.clientY-Number(renderer.domElement.dataset.y);if(Math.hypot(dx,dy)>5)return;
- const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;
- raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(selectable,false);if(hits.length)selectMesh(hits[0].object);
-});
-document.querySelector('#reset').addEventListener('click',()=>{camera.position.set(0,.15,3.8);controls.target.set(0,0,0);controls.update();});
-document.querySelector('#showAll').addEventListener('click',()=>{selectable.forEach(m=>m.visible=true);buildList(document.querySelector('#search').value);});
-document.querySelector('#spin').addEventListener('click',e=>{autoSpin=!autoSpin;e.currentTarget.textContent='Auto giro: '+(autoSpin?'ON':'OFF');e.currentTarget.setAttribute('aria-pressed',String(autoSpin));});
-function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}
-new ResizeObserver(resize).observe(stage);resize();
-function animate(){requestAnimationFrame(animate);if(autoSpin&&modelReady)root.rotation.y+=.004;controls.update();renderer.render(scene,camera);}animate();
+  const models = [
+    { id:'craneo', name:'Cráneo óseo', file:'craneo-anatomico.glb', icon:'🦴', info:'Modelo óseo del cráneo.' },
+    { id:'cerebro', name:'Cerebro', file:'brain_areas.glb', icon:'🧠', info:'Modelo anatómico del cerebro y sus áreas.' },
+    { id:'higado', name:'Hígado y vesícula', file:'human_liver_and_gallbladder.glb', icon:'🫀', info:'Modelo anatómico del hígado y la vesícula biliar.' },
+    { id:'pie', name:'Pie óseo', file:'foot_whole.glb', icon:'🦶', info:'Modelo óseo del pie.' },
+    { id:'mano', name:'Mano ósea', file:'hand.glb', icon:'✋', info:'Modelo óseo de la mano.' },
+    { id:'corazon', name:'Corazón', file:'heart.glb', icon:'❤️', info:'Modelo anatómico del corazón.' }
+  ];
+
+  const params = new URLSearchParams(location.search);
+  const requestedId = params.get('modelo') || 'craneo';
+  let currentModel = models.find(m => m.id === requestedId) || models[0];
+  const viewer = document.getElementById('viewer');
+  const loading = document.getElementById('loading');
+  const status = document.getElementById('status');
+  const sidebar = document.getElementById('sidebar');
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let scene, camera, renderer, controls, modelRoot, selectedObject = null;
+  let originalCameraPosition, originalTarget;
+  const hiddenObjects = new Set();
+
+  const modelList = document.getElementById('modelList');
+  models.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'model-btn' + (m.id === currentModel.id ? ' active' : '');
+    btn.innerHTML = `<span class="model-icon">${m.icon}</span><span><span class="model-name">${m.name}</span><br><span class="model-sub">Abrir modelo</span></span>`;
+    btn.addEventListener('click', () => {
+      const url = new URL(location.href);
+      url.searchParams.set('modelo', m.id);
+      location.href = url.href;
+    });
+    modelList.appendChild(btn);
+  });
+
+  document.getElementById('modelTitle').textContent = currentModel.name;
+  document.getElementById('modelSubtitle').textContent = 'Visor anatómico interactivo';
+  document.getElementById('selectedInfo').textContent = currentModel.info;
+  document.getElementById('menuToggle').addEventListener('click', () => sidebar.classList.toggle('open'));
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x08090b);
+  camera = new THREE.PerspectiveCamera(45, viewer.clientWidth / viewer.clientHeight, 0.01, 10000);
+  camera.position.set(0, 0, 4);
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  viewer.appendChild(renderer.domElement);
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.07;
+  controls.minDistance = 0.01;
+  controls.maxDistance = 10000;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x55505a, 2.0));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.5); keyLight.position.set(4,6,5); scene.add(keyLight);
+  const fillLight = new THREE.DirectionalLight(0xb7d9ff, 1.1); fillLight.position.set(-5,1,-4); scene.add(fillLight);
+  const rimLight = new THREE.DirectionalLight(0xffd9b0, 0.8); rimLight.position.set(0,-4,4); scene.add(rimLight);
+
+  const loader = new GLTFLoader();
+  function setStatus(msg) { status.textContent = msg; }
+  function clearModel() {
+    if (modelRoot) {
+      scene.remove(modelRoot);
+      modelRoot.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose());
+      });
+    }
+    modelRoot = null; selectedObject = null; hiddenObjects.clear();
+    document.getElementById('selectedName').textContent = 'Ninguna pieza seleccionada';
+    document.getElementById('selectedInfo').textContent = currentModel.info;
+    document.getElementById('hideBtn').textContent = 'Ocultar pieza';
+  }
+  function loadModel(model) {
+    currentModel = model;
+    loading.style.display = 'grid';
+    loading.innerHTML = '<div><strong>Cargando ' + model.name + '…</strong>Esperá unos segundos.</div>';
+    setStatus('Cargando modelo…');
+    clearModel();
+    loader.load('./assets/' + model.file, gltf => {
+      modelRoot = gltf.scene;
+      scene.add(modelRoot);
+      modelRoot.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(modelRoot);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      modelRoot.position.sub(center);
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const fov = camera.fov * Math.PI / 180;
+      let distance = Math.abs(maxDim / (2 * Math.tan(fov / 2))) * 1.65;
+      distance = Math.max(distance, 0.1);
+      camera.position.set(distance * 0.85, distance * 0.45, distance * 1.45);
+      camera.near = Math.max(distance / 1000, 0.001);
+      camera.far = Math.max(distance * 100, 100);
+      camera.updateProjectionMatrix();
+      controls.target.set(0,0,0);
+      controls.minDistance = maxDim * 0.15;
+      controls.maxDistance = maxDim * 15;
+      controls.update();
+      originalCameraPosition = camera.position.clone();
+      originalTarget = controls.target.clone();
+      document.getElementById('modelTitle').textContent = model.name;
+      document.getElementById('selectedInfo').textContent = model.info;
+      loading.style.display = 'none';
+      setStatus('Modelo cargado');
+      sidebar.classList.remove('open');
+    }, xhr => {
+      if (xhr.total) loading.innerHTML = '<div><strong>Cargando ' + model.name + '…</strong>' + Math.round(xhr.loaded / xhr.total * 100) + '%</div>';
+    }, err => {
+      console.error(err);
+      loading.style.display = 'grid';
+      loading.innerHTML = '<div><strong>No se pudo cargar este modelo.</strong>Revisá que exista <code>assets/' + model.file + '</code> y que el nombre coincida exactamente.</div>';
+      setStatus('Error al cargar');
+    });
+  }
+
+  renderer.domElement.addEventListener('pointerdown', e => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    if (!modelRoot) return;
+    const hits = raycaster.intersectObject(modelRoot, true).filter(h => h.object.visible && h.object.isMesh);
+    if (!hits.length) return;
+    selectedObject = hits[0].object;
+    const name = selectedObject.name || 'Pieza anatómica';
+    document.getElementById('selectedName').textContent = name;
+    document.getElementById('selectedInfo').textContent = 'Pieza seleccionada del modelo ' + currentModel.name + '. El nombre depende de cómo se haya guardado el archivo 3D.';
+    document.getElementById('hideBtn').textContent = selectedObject.visible ? 'Ocultar pieza' : 'Mostrar pieza';
+  });
+
+  document.getElementById('hideBtn').addEventListener('click', () => {
+    if (!selectedObject) { document.getElementById('selectedInfo').textContent = 'Primero seleccioná una pieza del modelo.'; return; }
+    selectedObject.visible = !selectedObject.visible;
+    if (selectedObject.visible) hiddenObjects.delete(selectedObject); else hiddenObjects.add(selectedObject);
+    document.getElementById('hideBtn').textContent = selectedObject.visible ? 'Ocultar pieza' : 'Mostrar pieza';
+  });
+  document.getElementById('showAllBtn').addEventListener('click', () => {
+    hiddenObjects.forEach(o => o.visible = true);
+    hiddenObjects.clear();
+    if (selectedObject) document.getElementById('hideBtn').textContent = 'Ocultar pieza';
+  });
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (originalCameraPosition) camera.position.copy(originalCameraPosition);
+    if (originalTarget) controls.target.copy(originalTarget);
+    controls.update();
+  });
+
+  function resize() {
+    const w = viewer.clientWidth, h = viewer.clientHeight;
+    if (!w || !h) return;
+    camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w,h);
+  }
+  window.addEventListener('resize', resize);
+  function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene,camera); }
+  animate();
+  loadModel(currentModel);
 </script>
 </body>
 </html>
