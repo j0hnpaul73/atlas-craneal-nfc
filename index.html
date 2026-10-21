@@ -109,14 +109,19 @@
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
   import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
-  const models = [
-    { id:'craneo', name:'Cráneo óseo', file:'craneo-anatomico.glb', icon:'🦴', info:'Modelo óseo del cráneo.' },
-    { id:'cerebro', name:'Cerebro', file:'brain_areas.glb', icon:'🧠', info:'Modelo anatómico del cerebro y sus áreas.' },
-    { id:'higado', name:'Hígado y vesícula', file:'human_liver_and_gallbladder.glb', icon:'🫀', info:'Modelo anatómico del hígado y la vesícula biliar.' },
-    { id:'pie', name:'Pie óseo', file:'foot_whole.glb', icon:'🦶', info:'Modelo óseo del pie.' },
-    { id:'mano', name:'Mano ósea', file:'hand.glb', icon:'✋', info:'Modelo óseo de la mano.' },
-    { id:'corazon', name:'Corazón', file:'heart.glb', icon:'❤️', info:'Modelo anatómico del corazón.' }
-  ];
+
+const models = [
+  { id:'craneo', name:'Cráneo óseo', file:'craneo-anatomico.glb', icon:'🦴', info:'Modelo óseo completo del cráneo.' },
+  { id:'cerebro', name:'Cerebro', file:'brain_areas.glb', icon:'🧠', info:'Modelo anatómico del cerebro y sus áreas.' },
+  { id:'higado', name:'Hígado y vesícula', file:'human_liver_and_gallbladder.glb', icon:'🫀', info:'Modelo anatómico del hígado y la vesícula biliar.' },
+  { id:'pie', name:'Pie óseo', file:'foot_whole.glb', icon:'🦶', info:'Modelo óseo del pie.' },
+  { id:'mano', name:'Mano ósea', file:'hand.glb', icon:'✋', info:'Modelo óseo de la mano.' },
+  { id:'corazon', name:'Corazón', file:'heart.glb', icon:'❤️', info:'Modelo anatómico del corazón.' },
+  { id:'miembro-inferior', name:'Miembro inferior', file:'miembro-inferior.glb', icon:'🦵', info:'Modelo anatómico del miembro inferior.' },
+  { id:'miembro-superior', name:'Miembro superior', file:'miembro-superior.glb', icon:'💪', info:'Modelo anatómico del miembro superior.' },
+  { id:'esqueleto-completo', name:'Esqueleto completo', file:'esqueleto-completo.glb', icon:'💀', info:'Modelo del esqueleto humano completo.' }
+];
+
 
   const params = new URLSearchParams(location.search);
   const requestedId = params.get('modelo') || 'craneo';
