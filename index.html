@@ -107,6 +107,7 @@
   import * as THREE from 'three';
   import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
   const models = [
     { id:'craneo', name:'Cráneo óseo', file:'craneo-anatomico.glb', icon:'🦴', info:'Modelo óseo del cráneo.' },
@@ -169,7 +170,14 @@
   const fillLight = new THREE.DirectionalLight(0xb7d9ff, 1.1); fillLight.position.set(-5,1,-4); scene.add(fillLight);
   const rimLight = new THREE.DirectionalLight(0xffd9b0, 0.8); rimLight.position.set(0,-4,4); scene.add(rimLight);
 
-  const loader = new GLTFLoader();
+  const dracoLoader = new DRACOLoader();
+
+dracoLoader.setDecoderPath(
+  'https://www.gstatic.com/draco/versioned/decoders/1.5.7/'
+);
+
+const loader = new GLTFLoader();
+loader.setDRACOLoader(dracoLoader);
   function setStatus(msg) { status.textContent = msg; }
   function clearModel() {
     if (modelRoot) {
